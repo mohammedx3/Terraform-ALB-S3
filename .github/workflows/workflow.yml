@@ -22,32 +22,32 @@ jobs:
 #           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
 #           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-#     - name: Run a Terraform init  
-#       uses: docker://hashicorp/terraform:0.12.13
-#       with:
-#         entrypoint: terraform
-#         args: init
+    - name: Run a Terraform init  
+      uses: docker://hashicorp/terraform:0.15.3
+      with:
+        entrypoint: terraform
+        args: init
 
-#     - name: Run a Terraform validate    
-#       uses: docker://hashicorp/terraform:0.12.13
-#       with:
-#         entrypoint: terraform
-#         args: validate
+    - name: Run a Terraform validate    
+      uses: docker://hashicorp/terraform:0.15.3
+      with:
+        entrypoint: terraform
+        args: validate
     
-#     - name: Set up Go 1.13
-#       uses: actions/setup-go@v1
-#       with:
-#         go-version: 1.13
-#       id: go
+    - name: Set up Go 1.16.4
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.16.4
+      id: go
 
-#     - name: Get dependencies
-#       run: |
-#         if [ -f Gopkg.toml ]; then
-#             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-#             dep ensure
-#         else
-#           go get -v -d -t ./...  
-#         fi
+    - name: Get dependencies
+      run: |
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        else
+          go get -v -d -t ./...  
+        fi
         
     - name: Create AWS creds file
       run: echo [default] >> awsCreds.txt;echo  AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> awsCreds.txt; echo AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> awsCreds.txt;cat awsCreds.txt

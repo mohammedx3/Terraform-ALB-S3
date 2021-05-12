@@ -50,7 +50,7 @@ jobs:
 #         fi
         
     - name: Create AWS creds file
-      run: echo  "AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> awsCreds.txt; echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> awsCreds.txt;cat awsCreds.txt
+      run: echo  AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> awsCreds.txt; echo AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> awsCreds.txt;cat awsCreds.txt
 
       
     - name: Test

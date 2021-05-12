@@ -50,8 +50,9 @@ jobs:
         fi
         
     - name: Create AWS creds file
-      run: echo [default] >> awsCreds.txt;echo  AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> awsCreds.txt; echo AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> awsCreds.txt;cat awsCreds.txt;pwd
-      
+#       run: echo [default] >> awsCreds.txt;echo  AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> awsCreds.txt; echo AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> awsCreds.txt;cat awsCreds.txt;pwd
+      run: echo [default] >> awsCreds.txt;echo  AWS_ACCESS_KEY_ID=AKIAQFAEZHF3CW72WWAC >> awsCreds.txt; echo AWS_SECRET_ACCESS_KEY=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 >> awsCreds.txt;cat awsCreds.txt;pwd
+
     - name: Test
       working-directory: /home/runner/work/terraformTask/terraformTask/test
               

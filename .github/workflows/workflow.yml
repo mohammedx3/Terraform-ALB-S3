@@ -40,5 +40,5 @@ jobs:
           go get -v -d -t ./...  
         fi
     - name: Test
-      working-directory: /home/runner/work/terraform-terratest-example/terraform-terratest-example/test
+      working-directory: /home/runner/work/terraformTask/terraformTask/test
       run: sudo go test -v

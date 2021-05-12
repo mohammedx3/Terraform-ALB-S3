@@ -1,6 +1,6 @@
-provider "aws" {
-  region = "eu-west-1" 
-}
+# provider "aws" {
+#   region = "eu-west-1" 
+# }
 
 resource "local_file" "to_dir" {
   count    = "${length(local.source_files)}"

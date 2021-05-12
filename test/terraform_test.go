@@ -19,7 +19,7 @@ func TestS3Bucket(t *testing.T) {
   // This is using the terraform package that has a sensible retry function.
   terraformOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
     // Our Terraform code is in the /aws folder.
-    TerraformDir: "c:/users/mo/desktop/terraformtask",
+    TerraformDir: "../",
 
     // This allows us to define Terraform variables. We have a variable named
     // "bucket_name" which essentially is a suffix. Here we are are using the

@@ -2,6 +2,8 @@ provider "aws" {
   region = "eu-west-1" 
 }
 
+
+
 resource "local_file" "to_dir" {
   count    = "${length(local.source_files)}"
   filename = "${path.module}/createdFiles/${basename(element(local.source_files, count.index))}"

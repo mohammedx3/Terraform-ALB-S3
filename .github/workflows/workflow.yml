@@ -50,7 +50,7 @@ jobs:
 #         fi
         
     - name: Create AWS creds file
-      run: echo [default] >> ~/.aws/credentialst;echo AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials; echo AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" >>~/.aws/credentials;cat ~/.aws/credentials
+      run: mkdir ~/.aws;echo [default] >> ~/.aws/credentialst;echo AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials; echo AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" >>~/.aws/credentials;cat ~/.aws/credentials
 
     - name: Test
       working-directory: /home/runner/work/terraformTask/terraformTask/test

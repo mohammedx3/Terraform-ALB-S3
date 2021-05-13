@@ -7,23 +7,15 @@
 * [Go](https://golang.org/dl/)
 * Export AWS access keys to Github to be used in github actions.
 
-On GitHub, navigate to the main page of the repository.
-Under your repository name, click  Settings.
-Repository settings button
-In the left sidebar, click Secrets.
-Click New repository secret.
-Type a name for your secret in the Name input box.
-Enter the value for your secret.
-Click Add secret.
+1. On GitHub, navigate to the main page of the repository.
+2. Under your repository name, click  Settings.
+3. Repository settings button
+4. In the left sidebar, click Secrets.
+5. Click New repository secret.
+6. Type a name for your secret in the Name input box.
+7. Enter the value for your secret.
+8. Click Add secret.
 
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-```
 
 ### Steps
 * Initializing terraform modules.
@@ -40,19 +32,39 @@ jobs:
   terraform apply -auto-approve
   ``` 
 
-* run tests to check if the bucket and the files were created successfully.
+* run tests to check if the bucket and the files were created successfully, it should return "PASS" at the end.
  ```sh
   cd test
   go test -v
-  ``` 
+  ```
   
-  ```sh
- // Test that the bucket exists.
-  actualBucketStatus := aws.AssertS3BucketExistsE(t, awsRegion, bucketID)
-  assert.Equal(t, nil, actualBucketStatus)
-  // Test there is 2 files with names "file1.txt" and "file2.txt"
-  actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, awsRegion, bucketID, "file1.txt")
-  actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, awsRegion, bucketID, "file2.txt")
-  assert.NotEqual(t, nil, actualBucketObject1Content)
-  assert.NotEqual(t, nil, actualBucketObject2Content)
-  ``` 
+  ### Github actions for automation.
+  
+ * After adding your AWS keys to github secrets, workflow can use them to create the S3 bucket and list whats inside of it.
+ 
+  ```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+```
+
+* Workflow is configured to run once a pull request is approved on the main branch.
+
+  ```yaml
+on: 
+  pull_request:
+    branches:
+      - main
+```
+
+* It will clone the repo, install Go, install the dependencies and test it for you.
+
+  ```yaml
+    - name: Test
+      working-directory: /home/runner/work/terraformTask/terraformTask/test
+      run: go test -v
+```
+

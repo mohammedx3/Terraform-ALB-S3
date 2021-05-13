@@ -29,23 +29,23 @@ jobs:
     - name: Which AWS user is connected
       run: aws sts get-caller-identity
         
-#     - name: Set up Go 1.16.4
-#       uses: actions/setup-go@v1
-#       with:
-#         go-version: 1.16.4
-#       id: go
+    - name: Set up Go 1.16.4
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.16.4
+      id: go
 
 
-#     - name: Get dependencies
-#       run: |
-#         if [ -f Gopkg.toml ]; then
-#             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-#             dep ensure
-#         else
-#           go get -v -d -t ./...  
-#         fi
+    - name: Get dependencies
+      run: |
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        else
+          go get -v -d -t ./...  
+        fi
 
-#     - name: Test
-#       working-directory: /home/runner/work/terraformTask/terraformTask/test
-#       run: aws configure list-profiles;go test -v
+    - name: Test
+      working-directory: /home/runner/work/terraformTask/terraformTask/test
+      run: go test -v
 

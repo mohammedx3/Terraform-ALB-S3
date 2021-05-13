@@ -19,7 +19,7 @@ variable "bucket_name" {
 
 // Set local timestamp to be imported in the 2 files.
 locals {
-  source_files = ["./createdFiles/test1.txt", "./createdFiles/file2.txt"]
+  source_files = ["./createdFiles/test1.txt", "./createdFiles/test2.txt"]
   timestamp = "${timestamp()}"
 }
 

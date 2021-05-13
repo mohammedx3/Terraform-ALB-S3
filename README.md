@@ -1,5 +1,5 @@
 # Terraform script to create AWS s3 bucket and 2 files in it with the timestamp when the script was executed.
-
+# Terratest to check the above actions are executed correctly.
 ### 1. Manual
 
 ### Prerequisites

@@ -47,5 +47,5 @@ jobs:
 
     - name: Test
       working-directory: /home/runner/work/terraformTask/terraformTask/test
-      run: go test -v
+      run: sudo go test -v
 

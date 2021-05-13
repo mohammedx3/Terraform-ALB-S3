@@ -82,7 +82,7 @@ func TestS3Bucket(t *testing.T) {
 
 	// Assert files were uploaded by checking returned content is not null and of type strings
 	assert.NotEqual(t, nil, actualBucketObject1Content)
-	assert.Equal(t, "", actualBucketObject1Content)
+	assert.IsType(t, "", actualBucketObject1Content)
 	assert.NotEqual(t, nil, actualBucketObject2Content)
-	assert.Equal(t, "", actualBucketObject2Content)
+	assert.IsType(t, "", actualBucketObject2Content)
 }

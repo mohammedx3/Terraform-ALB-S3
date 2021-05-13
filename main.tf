@@ -7,7 +7,7 @@ provider "aws" {
 // Create 2 text files and import timestamp in them
 resource "local_file" "to_dir" {
   count    = "${length(local.source_files)}"
-  filename = "${path.module}/createdFiles/${basename(element(local.source_files, count.index))}"
+  filename = "./createdFiles/${basename(element(local.source_files, count.index))}"
   content  = "${local.timestamp}"
 }
 
@@ -19,7 +19,7 @@ variable "bucket_name" {
 
 // Set local timestamp to be imported in the 2 files.
 locals {
-  source_files = ["${path.module}/createdFiles/test1.txt", "${path.module}/createdFiles/file2.txt"]
+  source_files = ["./createdFiles/test1.txt", "./createdFiles/file2.txt"]
   timestamp = "${timestamp()}"
 }
 
@@ -41,7 +41,7 @@ resource "aws_s3_bucket_object" "object1" {
   key    = "test1.txt"
   # acl = "public-read"
     acl = "private"
-  source = "${path.module}/createdFiles/test1.txt"
+  source = "./createdFiles/test1.txt"
   depends_on = [
     aws_s3_bucket.terratest-bucket
   ]
@@ -53,7 +53,7 @@ resource "aws_s3_bucket_object" "object2" {
   key    = "test2.txt"
   # acl = "public-read"
     acl = "private"
-  source = "${path.module}/createdFiles/test2.txt"
+  source = "./createdFiles/test2.txt"
   depends_on = [ 
     aws_s3_bucket.terratest-bucket
   ]

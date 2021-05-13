@@ -4,5 +4,11 @@
 
 ### Prerequisites
 * [Terraform](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* 
-Run terraform init first to initialize the needed modules.
+* [Go](https://golang.org/dl/)
+
+### Steps
+* Initializing terraform modules
+ ```sh
+  terraform init
+  ``` 
+

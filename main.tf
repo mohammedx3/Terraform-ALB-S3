@@ -29,6 +29,7 @@ resource "aws_s3_bucket" "terratest-bucket" {
   bucket = "${var.bucket_name}"
   # acl    = "public-read"
     acl    = "private"
+    force_destroy = true
   tags = {
     Name        = "My bucket"
     Environment = "Dev"

@@ -36,5 +36,5 @@ jobs:
 
     - name: Test
       working-directory: /home/runner/work/terraformTask/terraformTask/test
-      run: go test -v
+      run: aws configure list-profiles;go test -v
 

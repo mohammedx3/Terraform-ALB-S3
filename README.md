@@ -1,6 +1,6 @@
 # Terraform script to create AWS s3 bucket and 2 files in it with the timestamp when the script was executed.
 
-### Terraform
+### 1. Manual
 
 ### Prerequisites
 * [Terraform](https://www.webpagefx.com/tools/emoji-cheat-sheet)
@@ -32,13 +32,17 @@
   terraform apply -auto-approve
   ``` 
 
-* run tests to check if the bucket and the files were created successfully, it should return "PASS" at the end.
+* You should find a new S3 bucket created with 2 files with the timestamp in them.
+
+
+### Use Terratest to apply the changes and test if the bucket and the files exist or not.
+* It will run both terraform init and terraform apply then run tests to check if the bucket and the files were created successfully, it should return "PASS" at the end.
  ```sh
   cd test
   go test -v
   ```
   
-  ### Github actions for automation.
+### 2. Github actions (automated).
   
  * After adding your AWS keys to github secrets, workflow can use them to create the S3 bucket and list whats inside of it.
  

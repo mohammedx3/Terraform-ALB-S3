@@ -1,8 +1,8 @@
-# provider "aws" {
-#   region = "eu-west-1"
-#   profile = "default"
-#   shared_credentials_file = "~/.aws/credentials"
-# }
+provider "aws" {
+  region = "eu-west-1"
+  access_key = ${{ secrets.AWS_ACCESS_KEY_ID }}
+  secret_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+}
 
 
 

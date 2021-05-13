@@ -41,6 +41,7 @@
 * It will run both terraform init and terraform apply to create a bucket with a random name then run tests to check if the bucket and the files were created successfully, it should return "PASS" at the end.
  ```sh
   cd test
+  go get "needed dependencies"
   go test -v
   ```
   

@@ -77,8 +77,8 @@ func TestS3Bucket(t *testing.T) {
 	assert.Equal(t, nil, actualBucketStatus)
 
 	// Test there is 2 files with names "file1.txt" and "file2.txt"
-	actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, config.S3_REGION, bucketID, "file1.txt")
-	actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, config.S3_REGION, bucketID, "file2.txt")
+	actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, config.S3_REGION, bucketID, "test1.txt")
+	actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, config.S3_REGION, bucketID, "testt2.txt")
 
 	// Assert files were uploaded by checking returned content is not null and of type strings
 	assert.NotEqual(t, nil, actualBucketObject1Content)

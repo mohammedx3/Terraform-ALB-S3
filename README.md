@@ -5,7 +5,7 @@
 ### 1. Manual
 
 ### Prerequisites
-* [Terraform](https://www.webpagefx.com/tools/emoji-cheat-sheet)
+* [Terraform](https://www.terraform.io/downloads.html)
 * [Go](https://golang.org/dl/)
 * Export AWS access keys to Github to be used in github actions.
 

@@ -18,7 +18,7 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.15
-        
+      
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -26,22 +26,26 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-1
         
-    - name: Set up Go 1.16.4
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.16.4
-      id: go
+    - name: Which AWS user is connected
+      run: aws sts get-caller-identity
+        
+#     - name: Set up Go 1.16.4
+#       uses: actions/setup-go@v1
+#       with:
+#         go-version: 1.16.4
+#       id: go
 
-    - name: Get dependencies
-      run: |
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        else
-          go get -v -d -t ./...  
-        fi
 
-    - name: Test
-      working-directory: /home/runner/work/terraformTask/terraformTask/test
-      run: aws configure list-profiles;aws s3 ls;aws sts get-caller-identity;go test -v
+#     - name: Get dependencies
+#       run: |
+#         if [ -f Gopkg.toml ]; then
+#             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+#             dep ensure
+#         else
+#           go get -v -d -t ./...  
+#         fi
+
+#     - name: Test
+#       working-directory: /home/runner/work/terraformTask/terraformTask/test
+#       run: aws configure list-profiles;go test -v
 

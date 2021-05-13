@@ -1,0 +1,4 @@
+{
+  "TERRAFORM_DIR": "../",
+  "S3_REGION": "eu-west-1"
+}

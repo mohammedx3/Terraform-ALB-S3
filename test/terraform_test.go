@@ -1,6 +1,9 @@
 package test
 
 import (
+  "fmt"
+  "strings"
+  "github.com/gruntwork-io/terratest/modules/random"
   "testing"
   "github.com/gruntwork-io/terratest/modules/aws"
   "github.com/gruntwork-io/terratest/modules/terraform"
@@ -19,7 +22,7 @@ func TestS3Bucket(t *testing.T) {
     
     // This allows us to define Terraform variables. We have a variable named "bucket_name" to use it in our testing.
     Vars: map[string]interface{}{
-      "bucket_name": "terratest-task-s3",
+      "bucket_name": fmt.Sprintf("-%v", strings.ToLower(random.UniqueId())),
     },
 
     // Setting the environment variables, specifically the AWS region.
@@ -29,7 +32,7 @@ func TestS3Bucket(t *testing.T) {
   })
 
   // To destroy the infrastructure after testing.
-//   defer terraform.Destroy(t, terraformOpts)
+  defer terraform.Destroy(t, terraformOpts)
 
   // Deploy the infrastructure with the options defined above
   terraform.InitAndApply(t, terraformOpts)

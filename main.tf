@@ -1,4 +1,4 @@
-// Speicfy AWS region
+// Specify AWS region
 provider "aws" {
   region = "eu-west-1" 
 
@@ -14,7 +14,7 @@ resource "local_file" "to_dir" {
 // Specify variable with s3 bucket name
 variable "bucket_name" {
   description = "The name of the bucket"
-  default     = "terratest-task-s3"
+  default     = "task"
 }
 
 // Set local timestamp to be imported in the 2 files.
@@ -26,10 +26,9 @@ locals {
 
 // Create private s3 bucket
 resource "aws_s3_bucket" "terratest-bucket" {
-  bucket = "${var.bucket_name}"
+  bucket = "terra-${var.bucket_name}"
   # acl    = "public-read"
     acl    = "private"
-    force_destroy = true
   tags = {
     Name        = "My bucket"
     Environment = "Dev"
@@ -38,7 +37,7 @@ resource "aws_s3_bucket" "terratest-bucket" {
 
 // Import file1 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object1" {
-  bucket = "${var.bucket_name}"
+  bucket = "terra-${var.bucket_name}"
   key    = "file1.txt"
   # acl = "public-read"
     acl = "private"
@@ -50,7 +49,7 @@ resource "aws_s3_bucket_object" "object1" {
 
 // Import file2 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object2" {
-  bucket = "${var.bucket_name}"
+  bucket = "terra-${var.bucket_name}"
   key    = "file2.txt"
   # acl = "public-read"
     acl = "private"

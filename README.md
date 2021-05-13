@@ -57,16 +57,17 @@ jobs:
 
 * Workflow is configured to run once a pull request is approved on the main branch.
 
-  ```yaml
+```yaml
 on: 
   pull_request:
     branches:
       - main
 ```
 
+
 * It will clone the repo, install Go, install the dependencies and test it for you.
 
-  ```yaml
+```yaml
     - name: Test
       working-directory: /home/runner/work/terraformTask/terraformTask/test
       run: go test -v

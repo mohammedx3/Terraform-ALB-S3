@@ -4,7 +4,8 @@ provider "aws" {
 
 }
 
-// Create 2 text files and import timestamp in them
+// Create 2 text 
+s and import timestamp in them
 resource "local_file" "to_dir" {
   count    = "${length(local.source_files)}"
   filename = "${path.module}/createdFiles/${basename(element(local.source_files, count.index))}"
@@ -19,7 +20,7 @@ variable "bucket_name" {
 
 // Set local timestamp to be imported in the 2 files.
 locals {
-  source_files = ["${path.module}/createdFiles/file1.txt", "${path.module}/createdFiles/file2.txt"]
+  source_files = ["${path.module}/createdFiles/test1.txt", "${path.module}/createdFiles/file2.txt"]
   timestamp = "${timestamp()}"
 }
 
@@ -35,25 +36,25 @@ resource "aws_s3_bucket" "terratest-bucket" {
   }
 }
 
-// Import file1 into the bucket but wait for the bucket to be created first.
+// Import test1 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object1" {
   bucket = "terra-${var.bucket_name}"
-  key    = "file1.txt"
+  key    = "test1.txt"
   # acl = "public-read"
     acl = "private"
-  source = "${path.module}/createdFiles/file1.txt"
+  source = "${path.module}/createdFiles/test1.txt"
   depends_on = [
     aws_s3_bucket.terratest-bucket
   ]
 }
 
-// Import file2 into the bucket but wait for the bucket to be created first.
+// Import test2 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object2" {
   bucket = "terra-${var.bucket_name}"
-  key    = "file2.txt"
+  key    = "test2.txt"
   # acl = "public-read"
     acl = "private"
-  source = "${path.module}/createdFiles/file2.txt"
+  source = "${path.module}/createdFiles/test2.txt"
   depends_on = [ 
     aws_s3_bucket.terratest-bucket
   ]

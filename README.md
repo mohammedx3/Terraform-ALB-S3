@@ -55,13 +55,12 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 ```
 
-* Workflow is configured to run once a pull request is approved on the main branch.
-
+* Workflow is configured to run once a push is made to task branch.
 ```yaml
 on: 
-  pull_request:
+  push:
     branches:
-      - main
+      - task
 ```
 
 

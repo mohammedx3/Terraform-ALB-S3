@@ -18,12 +18,23 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.15
+        
+    - name: Set up Go 1.16.4
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.16.4
+      id: go
 
-    - name: Setup Dependencies
-      working-directory: tests/
-      run:  go get -v -t -d && go mod tidy
+    - name: Get dependencies
+      run: |
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        else
+          go get -v -d -t ./...  
+        fi
 
     - name: Test
-      working-directory: tests/
+      working-directory: /home/runner/work/terraformTask/terraformTask/test
       run: go test -v
 

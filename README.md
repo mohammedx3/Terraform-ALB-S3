@@ -38,7 +38,7 @@
 * You should find a new S3 bucket created with 2 files with the timestamp in them.
 
 ### Use Terratest to apply the changes and test if the bucket and the files exist or not.
-* It will run both terraform init and terraform apply to create a bucket with a random name then run tests to check if the bucket and the files were created successfully, it will destroy everything after it compeletes and it should return "PASS" at the end.
+* It will run both terraform init and terraform apply to create a bucket with a random name then run tests to check if the bucket and the files were created successfully, it will destroy everything after it completes and it should return "PASS" at the end.
  ```sh
   cd test
   go get "needed dependencies"

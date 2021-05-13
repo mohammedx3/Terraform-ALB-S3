@@ -39,3 +39,20 @@ jobs:
  ```sh
   terraform apply -auto-approve
   ``` 
+
+* run tests to check if the bucket and the files were created successfully.
+ ```sh
+  cd test
+  go test -v
+  ``` 
+  
+  ```sh
+ // Test that the bucket exists.
+  actualBucketStatus := aws.AssertS3BucketExistsE(t, awsRegion, bucketID)
+  assert.Equal(t, nil, actualBucketStatus)
+  // Test there is 2 files with names "file1.txt" and "file2.txt"
+  actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, awsRegion, bucketID, "file1.txt")
+  actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, awsRegion, bucketID, "file2.txt")
+  assert.NotEqual(t, nil, actualBucketObject1Content)
+  assert.NotEqual(t, nil, actualBucketObject2Content)
+  ``` 

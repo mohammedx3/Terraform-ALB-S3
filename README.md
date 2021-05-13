@@ -7,8 +7,16 @@
 * [Go](https://golang.org/dl/)
 
 ### Steps
-* Initializing terraform modules
+* Initializing terraform modules.
  ```sh
   terraform init
   ``` 
 
+* Check what changes will occur once ran.
+ ```sh
+  terraform plan
+  ``` 
+* Apply changes.
+ ```sh
+  terraform apply -auto-approve
+  ``` 

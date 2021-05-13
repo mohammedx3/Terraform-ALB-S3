@@ -4,8 +4,7 @@ provider "aws" {
 
 }
 
-// Create 2 text 
-s and import timestamp in them
+// Create 2 text files and import timestamp in them
 resource "local_file" "to_dir" {
   count    = "${length(local.source_files)}"
   filename = "${path.module}/createdFiles/${basename(element(local.source_files, count.index))}"

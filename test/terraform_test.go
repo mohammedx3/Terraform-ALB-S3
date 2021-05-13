@@ -22,7 +22,7 @@ func TestS3Bucket(t *testing.T) {
     
     // This allows us to define Terraform variables. We have a variable named "bucket_name" to use it in our testing.
     Vars: map[string]interface{}{
-      "bucket_name": fmt.Sprintf("-%v", strings.ToLower(random.UniqueId())),
+      "bucket_name": fmt.Sprintf("%v", strings.ToLower(random.UniqueId())),
     },
 
     // Setting the environment variables, specifically the AWS region.

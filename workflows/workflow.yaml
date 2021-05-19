@@ -1,0 +1,43 @@
+name: Terraform CI
+
+on: 
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+        
+    - name: Which AWS user is connected
+      run: aws sts get-caller-identity
+        
+    - name: Set up Go 1.16.4
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.16.4
+      id: go
+
+
+    - name: Get dependencies
+      run: |
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        else
+          go get -v -d -t ./...  
+        fi
+
+    - name: Test
+      working-directory: /home/runner/work/terraformTask/terraformTask/test
+      run: go test -v

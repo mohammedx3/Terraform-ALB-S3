@@ -1,4 +1,4 @@
-// Specify AWS region
+# // Specify AWS region
 provider "aws" {
   region = "eu-west-1" 
 }
@@ -179,7 +179,10 @@ resource "time_sleep" "wait_30_seconds" {
 
 resource "aws_s3_bucket_policy" "s3BucketPolicy" {
   bucket = "terra-${var.bucket_name}"
-  depends_on = [time_sleep.wait_30_seconds]
+#   lifecycle {
+#   create_before_destroy = true
+# }
+  depends_on = [time_sleep.wait_30_seconds,aws_s3_bucket.terratest-bucket]
   # Terraform's "jsonencode" function converts a
   # Terraform expression's result to valid JSON syntax.
   policy = jsonencode({
@@ -244,6 +247,17 @@ resource "aws_instance" "firstInstance" {
   private_ip = "10.0.1.10"
   subnet_id = aws_subnet.subnet_az2.id
   key_name = "testtask"
+     user_data = <<-EOL
+    #!/bin/bash -xe
+
+    cd /home/ubuntu
+    sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
+    sudo chmod 777 traefik_linux-amd64
+    mkdir configs
+    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://terra-task.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
+    echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
+    ./traefik_linux-amd64
+    EOL
   tags = {
     Name = "First Instance"
   }
@@ -257,6 +271,17 @@ resource "aws_instance" "secondInstance" {
   iam_instance_profile = "${aws_iam_instance_profile.terraform_profile.name}"
   subnet_id = aws_subnet.subnet_az1.id
   key_name = "testtask"
+     user_data = <<-EOL
+    #!/bin/bash -xe
+
+    cd /home/ubuntu
+    sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
+    sudo chmod 777 traefik_linux-amd64
+    mkdir configs
+    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://terra-task.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
+    echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
+    ./traefik_linux-amd64
+    EOL
   tags = {
     Name = "Second Instance"
   }
@@ -350,3 +375,35 @@ resource "aws_lb_listener" "front_end" {
     target_group_arn = aws_lb_target_group.LBTargetGroup.arn
   }
 }
+
+
+
+# data "template_file" "ec2_user_data" {
+#   template = "${"./bootScript.txt"}"
+# }
+
+# resource "aws_instance" "testInstance" {
+#   ami = "ami-0a8e758f5e873d1c1"
+#   instance_type = "t2.micro"
+#   associate_public_ip_address = true
+#   # user_data = "${data.template_file.ec2_user_data.template}"
+#   # iam_instance_profile = "${aws_iam_instance_profile.terraform_profile.name}"
+#   # private_ip = "10.0.1.10"
+#   # subnet_id = aws_subnet.subnet_az2.id
+#     user_data = <<-EOL
+#     #!/bin/bash -xe
+
+#     cd /home/ubuntu
+#     sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
+#     sudo chmod 777 traefik_linux-amd64
+#     mkdir configs
+#     echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://${aws_s3_bucket.terratest-bucket.name}.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
+#     echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
+#     ./traefik_linux-amd64
+#     EOL
+
+#   key_name = "terraform"
+#   tags = {
+#     Name = "test Instance"
+#   }
+# }

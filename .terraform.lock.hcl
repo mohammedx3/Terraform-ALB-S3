@@ -59,6 +59,7 @@ provider "registry.terraform.io/hashicorp/template" {
 provider "registry.terraform.io/hashicorp/time" {
   version = "0.7.1"
   hashes = [
+    "h1:YENYyEGvQ0WvcFu8b82YWYv1x/hAn6BX9CDK7km17GM=",
     "h1:r4Pw0C8s7Z/d//qJlJHrHdtqdd8vFm85hbxEwZYshrI=",
     "zh:1fa9e5b198db3ae7dcfe70ec505db4c70bf3a557e2dcb6fb19cecbe994fe048f",
     "zh:320d90646638ee4d3fa69ee55bce4d9762ac4ceb0530fe114d1ad183c16ea3fb",

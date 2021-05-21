@@ -316,9 +316,10 @@ resource "aws_security_group" "lb_sg" {
 
   ingress {
     description      = "Allow all traffic"
-    from_port        = 9
+    from_port        = 0
     to_port          = 0
     protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
     cidr_blocks      = [aws_vpc.public.cidr_block]
 
   }

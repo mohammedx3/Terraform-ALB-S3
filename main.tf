@@ -51,16 +51,16 @@ resource "aws_iam_policy_attachment" "terraform-policy-attach" {
 }
 
 
-# data "aws_iam_policy_document" "instance-assume-role-policy" {
-#   statement {
-#     actions = ["sts:AssumeRole"]
+data "aws_iam_policy_document" "instance-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
 
-#     principals {
-#       type        = "Service"
-#       identifiers = ["s3.amazonaws.com"]
-#     }
-#   }
-# }
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+  }
+}
 
 
 data "aws_region" "current" {}
@@ -159,7 +159,7 @@ resource "aws_s3_bucket" "terratest-bucket" {
   bucket = "terra-${var.bucket_name}"
   # acl    = "public-read"
     acl    = "private"
-    force_destroy = true
+    # force_destroy = true
   tags = {
     Name        = "My bucket"
     Environment = "Dev"
@@ -198,9 +198,9 @@ resource "time_sleep" "wait_30_seconds" {
 
 resource "aws_s3_bucket_policy" "s3BucketPolicy" {
   bucket = "terra-${var.bucket_name}"
-  lifecycle {
-  create_before_destroy = true
-}
+#   lifecycle {
+#   create_before_destroy = true
+# }
   depends_on = [time_sleep.wait_30_seconds,aws_s3_bucket.terratest-bucket]
   # Terraform's "jsonencode" function converts a
   # Terraform expression's result to valid JSON syntax.
@@ -221,7 +221,7 @@ resource "aws_s3_bucket_policy" "s3BucketPolicy" {
         "StringNotLike": {
             "aws:userId": [
             "${aws_iam_role.terraformS3.unique_id}:*",
-            "111111111111"
+            "AIDAQFAEZHF3L7RQQ2NE3"
           ]
         }
       }
@@ -230,27 +230,12 @@ resource "aws_s3_bucket_policy" "s3BucketPolicy" {
   })
 }
 
-
-# // Export bucket id to be later used in terratest.
-# output "bucket_id" {
-#   value = aws_s3_bucket.terratest-bucket.id
-# }
-
+# # // Export bucket id to be later used in terratest.
+# # output "bucket_id" {
+# #   value = aws_s3_bucket.terratest-bucket.id
+# # }
 
 
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-    filter {
-       name   = "architecture"
-       values = ["x86_64"]
-     }
-  owners = ["099720109477"] 
-}
 
 resource "aws_iam_instance_profile" "terraform_profile" {
   name = "terraform_profile"
@@ -270,11 +255,15 @@ resource "aws_instance" "firstInstance" {
      user_data = <<-EOL
     #!/bin/bash -xe
 
+    sudo apt update -y
     cd /home/ubuntu
     sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
     sudo chmod 777 traefik_linux-amd64
     mkdir configs
-    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://google.com"' > configs/reverse.toml
+
+    apt install awscli -y
+
+    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://${aws_s3_bucket.terratest-bucket.bucket}.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
     echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
     ./traefik_linux-amd64
     EOL
@@ -282,6 +271,12 @@ resource "aws_instance" "firstInstance" {
     Name = "First Instance"
   }
 }
+
+
+// Export bucket id to be later used in terratest.
+
+
+
 
 resource "aws_instance" "secondInstance" {
   # ami           = data.aws_ami.ubuntu.id
@@ -294,12 +289,15 @@ resource "aws_instance" "secondInstance" {
   key_name = "testtask"
      user_data = <<-EOL
     #!/bin/bash -xe
-
+    sudo apt update -y
     cd /home/ubuntu
     sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
     sudo chmod 777 traefik_linux-amd64
     mkdir configs
-    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://google.com"' > configs/reverse.toml
+   
+    apt install awscli -y
+    
+    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://${aws_s3_bucket.terratest-bucket.bucket}.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
     echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
     ./traefik_linux-amd64
     EOL
@@ -378,34 +376,3 @@ resource "aws_lb_listener" "front_end" {
   }
 }
 
-
-
-# data "template_file" "ec2_user_data" {
-#   template = "${"./bootScript.txt"}"
-# }
-
-# resource "aws_instance" "testInstance" {
-#   ami = "ami-0a8e758f5e873d1c1"
-#   instance_type = "t2.micro"
-#   associate_public_ip_address = true
-#   # user_data = "${data.template_file.ec2_user_data.template}"
-#   # iam_instance_profile = "${aws_iam_instance_profile.terraform_profile.name}"
-#   # private_ip = "10.0.1.10"
-#   # subnet_id = aws_subnet.subnet_az2.id
-#     user_data = <<-EOL
-#     #!/bin/bash -xe
-
-#     cd /home/ubuntu
-#     sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
-#     sudo chmod 777 traefik_linux-amd64
-#     mkdir configs
-#     echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://${aws_s3_bucket.terratest-bucket.name}.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
-#     echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
-#     ./traefik_linux-amd64
-#     EOL
-
-#   key_name = "terraform"
-#   tags = {
-#     Name = "test Instance"
-#   }
-# }

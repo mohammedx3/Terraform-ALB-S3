@@ -103,7 +103,7 @@ resource "aws_subnet" "subnet_az1" {
 
 resource "aws_subnet" "subnet_az2" {
   #  count = 2
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
   vpc_id     = aws_vpc.public.id
   # cidr_block = "10.20.20.0/24"
    cidr_block = "10.0.1.0/24"
@@ -114,6 +114,25 @@ resource "aws_subnet" "subnet_az2" {
     Name = "Terraform Subnet az2"
   }
 }
+
+resource "aws_route_table" "route" {
+  vpc_id = aws_vpc.public.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "Route table"
+  }
+}
+
+resource "aws_main_route_table_association" "routeassoci" {
+  vpc_id         = aws_vpc.public.id
+  route_table_id = aws_route_table.route.id
+}
+
 
 // Create 2 text files and import timestamp in them
 resource "local_file" "to_dir" {
@@ -179,9 +198,9 @@ resource "time_sleep" "wait_30_seconds" {
 
 resource "aws_s3_bucket_policy" "s3BucketPolicy" {
   bucket = "terra-${var.bucket_name}"
-#   lifecycle {
-#   create_before_destroy = true
-# }
+  lifecycle {
+  create_before_destroy = true
+}
   depends_on = [time_sleep.wait_30_seconds,aws_s3_bucket.terratest-bucket]
   # Terraform's "jsonencode" function converts a
   # Terraform expression's result to valid JSON syntax.
@@ -246,6 +265,7 @@ resource "aws_instance" "firstInstance" {
   iam_instance_profile = "${aws_iam_instance_profile.terraform_profile.name}"
   private_ip = "10.0.1.10"
   subnet_id = aws_subnet.subnet_az2.id
+  security_groups    = [aws_security_group.lb_sg.id]
   key_name = "testtask"
      user_data = <<-EOL
     #!/bin/bash -xe
@@ -254,7 +274,7 @@ resource "aws_instance" "firstInstance" {
     sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
     sudo chmod 777 traefik_linux-amd64
     mkdir configs
-    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://terra-task.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
+    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://google.com"' > configs/reverse.toml
     echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
     ./traefik_linux-amd64
     EOL
@@ -270,6 +290,7 @@ resource "aws_instance" "secondInstance" {
   instance_type = "t2.micro"
   iam_instance_profile = "${aws_iam_instance_profile.terraform_profile.name}"
   subnet_id = aws_subnet.subnet_az1.id
+  security_groups    = [aws_security_group.lb_sg.id]
   key_name = "testtask"
      user_data = <<-EOL
     #!/bin/bash -xe
@@ -278,7 +299,7 @@ resource "aws_instance" "secondInstance" {
     sudo wget https://github.com/traefik/traefik/releases/download/v1.7.30/traefik_linux-amd64
     sudo chmod 777 traefik_linux-amd64
     mkdir configs
-    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://terra-task.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
+    echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://google.com"' > configs/reverse.toml
     echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 
     ./traefik_linux-amd64
     EOL
@@ -294,29 +315,11 @@ resource "aws_security_group" "lb_sg" {
   vpc_id      = aws_vpc.public.id
 
   ingress {
-    description      = "TLS from VPC"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
+    description      = "Allow all traffic"
+    from_port        = 9
+    to_port          = 0
+    protocol         = "-1"
     cidr_blocks      = [aws_vpc.public.cidr_block]
-
-  }
-
-    ingress {
-    description      = "TLS from VPC"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-
-  }
-
-    ingress {
-    description      = "TLS from VPC"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
 
   }
 

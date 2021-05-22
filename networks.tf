@@ -1,8 +1,8 @@
-variable "aws_region" {
-  description = "AWS region"
-  type        = string
-  default = "eu-west-1"
-}
+# variable "aws_region" {
+#   description = "AWS region"
+#   type        = string
+#   default = "eu-west-1"
+# }
 
 variable "main_vpc_cidr" {
   description = "The CIDR of the main VPC"

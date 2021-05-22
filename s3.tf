@@ -100,3 +100,7 @@ resource "aws_s3_bucket_policy" "s3BucketPolicy" {
 output "bucket_id" {
   value = aws_s3_bucket.terratest-bucket.id
 }
+
+output "bucket_name" {
+  value = aws_s3_bucket.terratest-bucket
+}

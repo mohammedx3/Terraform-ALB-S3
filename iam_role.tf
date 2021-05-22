@@ -1,3 +1,9 @@
+
+variable "profile_name" {
+  description = "The name of the IAM role"
+  default     = "task"
+}
+
 variable "iamrole_name" {
   description = "The name of the IAM role"
   default     = "task"
@@ -6,6 +12,12 @@ variable "iamrole_name" {
 variable "iamrole_policy_name" {
   description = "The name of the IAM role policy"
   default     = "task"
+}
+
+
+resource "aws_iam_instance_profile" "terraform_profile" {
+  name = "terraform_profile-${var.profile_name}"
+  role = "${aws_iam_role.terraformS3.name}"
 }
 
 // Create IAM role.

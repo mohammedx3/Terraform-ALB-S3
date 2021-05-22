@@ -322,7 +322,7 @@ variable "aws_region" {
 variable "instance_name" {
   description = "The names for the ASG and other resources in this module"
   type        = string
-  default     = "asg-alb-example"
+  default     = "asg-alb"
 }
 
 variable "instance_port" {

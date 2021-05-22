@@ -5,121 +5,119 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"encoding/json"
+	// "encoding/json"
 	"log"
-	"os"
+	// "os"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"crypto/tls"
 	"time"
-
+	"net/url"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-
-
 )
 
-type Configuration struct {
-	TERRAFORM_DIR string
-	REGION     string
-}
+// type Configuration struct {
+// 	TERRAFORM_DIR string
+// 	REGION     string
+// }
 
-func LoadConfigFile() Configuration {
-	file, err := os.Open("./config.json")
+// func LoadConfigFile() Configuration {
+// 	file, err := os.Open("./config.json")
 
-	if err != nil {
-		log.Fatal("Can't open config file: ", err)
-	}
+// 	if err != nil {
+// 		log.Fatal("Can't open config file: ", err)
+// 	}
 
-	defer file.Close()
+// 	defer file.Close()
 
-	decoder := json.NewDecoder(file)
-	Config := Configuration{}
-	err = decoder.Decode(&Config)
+// 	decoder := json.NewDecoder(file)
+// 	Config := Configuration{}
+// 	err = decoder.Decode(&Config)
 
-	if err != nil {
-		log.Fatal("can't decode config JSON: ", err)
-	}
+// 	if err != nil {
+// 		log.Fatal("can't decode config JSON: ", err)
+// 	}
 
-	// log.(Config.TERRAFORM_DIR)
-	// log.Println(Config.REGION)
-	return Config
-}
+// 	// log.(Config.TERRAFORM_DIR)
+// 	// log.Println(Config.REGION)
+// 	return Config
+// }
 
 // Standard Go test, with the "Test" prefix and accepting the *testing.T struct.
-func TestS3Bucket(t *testing.T) {
-	// Load configuration file
-	config := LoadConfigFile()
+// func TestS3Bucket(t *testing.T) {
+	// // Load configuration file
+	// config := LoadConfigFile()
 
-	// This is using the terraform package that has a sensible retry function.
-	terraformOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		// Our Terraform code is in the /terraformTask folder.
-		TerraformDir: config.TERRAFORM_DIR,
+	// // This is using the terraform package that has a sensible retry function.
+	// terraformOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+	// 	// Our Terraform code is in the /terraformTask folder.
+	// 	TerraformDir: config.TERRAFORM_DIR,
 
-		// This allows us to define Terraform variables. We have a variable named "bucket_name" to use it in our testing.
-		Vars: map[string]interface{}{
-			"bucket_name": fmt.Sprintf("%v", strings.ToLower(random.UniqueId())),
-		},
+	// 	// This allows us to define Terraform variables. We have a variable named "bucket_name" to use it in our testing.
+		// Vars: map[string]interface{}{
+		// 	"bucket_name": fmt.Sprintf("%v", strings.ToLower(random.UniqueId())),
+		// },
 
-		// Setting the environment variables, specifically the AWS region.
-		EnvVars: map[string]string{
-			"AWS_DEFAULT_REGION": config.REGION,
-		},
-	})
+	// 	// Setting the environment variables, specifically the AWS region.
+	// 	EnvVars: map[string]string{
+	// 		"AWS_DEFAULT_REGION": config.REGION,
+	// 	},
+	// })
 
-	// To destroy the infrastructure after testing.
-	defer terraform.Destroy(t, terraformOpts)
+	// // // To destroy the infrastructure after testing.
+	// // defer terraform.Destroy(t, terraformOpts)
 
-	// Deploy the infrastructure with the options defined above
-	terraform.InitAndApply(t, terraformOpts)
+	// // // Deploy the infrastructure with the options defined above
+	// // terraform.InitAndApply(t, terraformOpts)
 
-	// Get the bucket ID so we can query AWS
-	bucketID := terraform.Output(t, terraformOpts, "bucket_id")
+	// // Get the bucket ID so we can query AWS
+	// bucketID := terraform.Output(t, terraformOpts, "bucket_id")
 
-	// Test that the bucket exists.
-	actualBucketStatus := aws.AssertS3BucketExistsE(t, config.REGION, bucketID)
-	assert.Equal(t, nil, actualBucketStatus)
+	// // Test that the bucket exists.
+	// actualBucketStatus := aws.AssertS3BucketExistsE(t, config.REGION, bucketID)
+	// assert.Equal(t, nil, actualBucketStatus)
 
-	// Test there is 2 files with names "file1.txt" and "file2.txt"
-	actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "test1.txt")
-	actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "testt2.txt")
+	// // Test there is 2 files with names "file1.txt" and "file2.txt"
+	// actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "test1.txt")
+	// actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "testt2.txt")
 
-	// Assert files were uploaded by checking returned content is not null and of type strings
-	assert.NotEqual(t, nil, actualBucketObject1Content)
-	assert.IsType(t, "", actualBucketObject1Content)
-	assert.NotEqual(t, nil, actualBucketObject2Content)
-	assert.IsType(t, "", actualBucketObject2Content)
-}
+	// // Assert files were uploaded by checking returned content is not null and of type strings
+	// assert.NotEqual(t, nil, actualBucketObject1Content)
+	// assert.IsType(t, "", actualBucketObject1Content)
+	// assert.NotEqual(t, nil, actualBucketObject2Content)
+	// assert.IsType(t, "", actualBucketObject2Content)
+// }
 
 // func TestTerraformAwsNetwork(t *testing.T) {
-// 	t.Parallel()
+	// t.Parallel()
 	
-// 	// Load configuration file
-// 	config := LoadConfigFile()
+	// // Load configuration file
+	// config := LoadConfigFile()
 
 	
-// 	// Give the VPC and the subnets correct CIDRs
-// 	vpcCidr := "10.0.0.0/16"
-// 	publicSubnetCidr1  := "10.0.0.0/24"
-// 	publicSubnetCidr2 := "10.0.1.0/24"
-// 	awsRegion := "eu-west-1"
+	// // Give the VPC and the subnets correct CIDRs
+	// vpcCidr := "10.0.0.0/16"
+	// publicSubnetCidr1  := "10.0.0.0/24"
+	// publicSubnetCidr2 := "10.0.1.0/24"
+	// awsRegion := "eu-west-1"
 
-// 	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
-// 	// terraform testing.
-// 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-// 		// The path to where our Terraform code is located
-// 		TerraformDir: config.TERRAFORM_DIR,
+	// // Construct the terraform options with default retryable errors to handle the most common retryable errors in
+	// // terraform testing.
+	// terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+	// 	// The path to where our Terraform code is located
+	// 	TerraformDir: config.TERRAFORM_DIR,
 
-// 		// Variables to pass to our Terraform code using -var options
-// 		Vars: map[string]interface{}{
-// 			"main_vpc_cidr":       vpcCidr,
-// 			"first_subnet_cidr": publicSubnetCidr1,
-// 			"second_subnet_cidr":  publicSubnetCidr2,
-// 			"aws_region":          awsRegion,
-// 		},
-// 	})
+	// 	// Variables to pass to our Terraform code using -var options
+	// 	Vars: map[string]interface{}{
+	// 		"main_vpc_cidr":       vpcCidr,
+	// 		"first_subnet_cidr": publicSubnetCidr1,
+	// 		"second_subnet_cidr":  publicSubnetCidr2,
+	// 		"aws_region":          awsRegion,
+	// 	},
+	// })
 
 // 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
 // 	defer terraform.Destroy(t, terraformOptions)
@@ -289,20 +287,25 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 	// tests running in parallel
 	uniqueID := random.UniqueId()
 
-
+		// Give the VPC and the subnets correct CIDRs
+		vpcCidr := "10.0.0.0/16"
+		publicSubnetCidr1  := "10.0.0.0/24"
+		publicSubnetCidr2 := "10.0.1.0/24"
 	// Create a KeyPair we can use later to SSH to each Instance
 	// keyPair := aws.CreateAndImportEC2KeyPair(t, awsRegion, uniqueID)
 
 	keyPair := aws.CreateAndImportEC2KeyPair(t, awsRegion, uniqueID)
-	test_structure.SaveEc2KeyPair	(t, workingDir, keyPair)
+	test_structure.SaveEc2KeyPair(t, workingDir, keyPair)
 	// test_structure.SaveEc2KeyPair(t, workingDir, keyPair)
 
 	// Give the ASG and other resources in the Terraform code a name with a unique ID so it doesn't clash
 	// with anything else in the AWS account.
 	name := fmt.Sprintf("terraTest-%s", uniqueID)
 
+	// // This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+	// terraform.InitAndApply(t, terraformOptions)
 	// Specify the text the ASG will return when we make HTTP requests to it.
-	text := fmt.Sprintf("Hello, %s!", uniqueID)
+	// text := fmt.Sprintf("Hello, %s!", uniqueID)
 
 	// Some AWS regions are missing certain instance types, so pick an available type based on the region we picked
 	instanceType := aws.GetRecommendedInstanceType(t, awsRegion, []string{"t2.micro"})
@@ -317,17 +320,89 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 		Vars: map[string]interface{}{
 			"aws_region":    awsRegion,
 			"instance_name": name,
-			"time_stamp": text,
 			"instance_type": instanceType,
-			"key_pair_name": keyPair,
+			"key_pair_name": keyPair.Name,
+			"bucket_name": fmt.Sprintf("%v", strings.ToLower(random.UniqueId())),
+			"main_vpc_cidr":       vpcCidr,
+			"first_subnet_cidr": publicSubnetCidr1,
+			"second_subnet_cidr":  publicSubnetCidr2,
+		},
+		EnvVars: map[string]string{
+			"AWS_DEFAULT_REGION": awsRegion,
 		},
 	})
+
+		// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+		terraform.InitAndApply(t, terraformOptions)
+/////////////////////////////////////////////////////////////////////////////////
+
+
+	// This is using the terraform package that has a sensible retry function.
+	// terraformOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+	// 	// Our Terraform code is in the /terraformTask folder.
+
+
+	// 	// Setting the environment variables, specifically the AWS region.
+	// 	// EnvVars: map[string]string{
+	// 	// 	"AWS_DEFAULT_REGION": awsRegion,
+	// 	// },
+	// })
+
+
+	// Get the bucket ID so we can query AWS
+	bucketID := terraform.Output(t, terraformOptions, "bucket_id")
+	
+	// Test that the bucket exists.
+	actualBucketStatus := aws.AssertS3BucketExistsE(t, awsRegion, bucketID)
+	assert.Equal(t, nil, actualBucketStatus)
+
+	// Test there is 2 files with names "file1.txt" and "file2.txt"
+	actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, awsRegion, bucketID, "test1.txt")
+	actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, awsRegion, bucketID, "testt2.txt")
+
+	// Assert files were uploaded by checking returned content is not null and of type strings
+	assert.NotEqual(t, nil, actualBucketObject1Content)
+	assert.IsType(t, "", actualBucketObject1Content)
+	assert.NotEqual(t, nil, actualBucketObject2Content)
+	assert.IsType(t, "", actualBucketObject2Content)
+
+/////////////////////////////////////////////////////////////////////////////////1
+
+//////////////////////////////////////////////////////////////////////////////////////////
+t.Parallel()
+	
+	// Load configuration file
+	// config := LoadConfigFile()
+
+	
+
+
+	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
+	// terraform testing.
+	// The path to where our Terraform code is located
+	// Run `terraform output` to get the value of an output variable
+	publicSubnetId1 := terraform.Output(t, terraformOptions, "public1_subnet_id")
+	publicSubnetId2 := terraform.Output(t, terraformOptions, "public2_subnet_id")
+	vpcId := terraform.Output(t, terraformOptions, "main_vpc_id")
+
+	subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
+
+	require.Equal(t, 2, len(subnets))
+	// Verify if the network that is supposed to be public is really public
+	assert.True(t, aws.IsPublicSubnet(t, publicSubnetId1, awsRegion))
+	// Verify if the network that is supposed to be public is really public
+	assert.True(t, aws.IsPublicSubnet(t, publicSubnetId2, awsRegion))
+
+		// Variables to pass to our Terraform code using -var options
+
+	
+//////////////////////////////////////////////////////////////////////////////////////2
 
 	// Save the Terraform Options struct so future test stages can use it
 	test_structure.SaveTerraformOptions(t, workingDir, terraformOptions)
 
-	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
-	terraform.InitAndApply(t, terraformOptions)
+	// // This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+	// terraform.InitAndApply(t, terraformOptions)
 }
 
 
@@ -352,6 +427,11 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 	keyPair := test_structure.LoadEc2KeyPair(t, workingDir)
 	// Run `terraform output` to get the value of an output variable
 	url := terraform.Output(t, terraformOptions, "url")
+	expectedText := terraform.Output(t, terraformOptions, "time_stamp")
+	log.Println(url)
+	log.Println(expectedText)
+	
+
 	asgName := terraform.OutputRequired(t, terraformOptions, "asg_name")
 	instanceIdToFilePathToContents := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file1, file2)
 	
@@ -368,7 +448,7 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 	assert.Equal(t, capacityInfo.CurrentCapacity, int64(2))
 
 	// Figure out what text the ASG should return for each request
-	expectedText, _ := terraformOptions.Vars["time_stamp"].(string)
+	
 
 	for _, filePathToContents := range instanceIdToFilePathToContents {
 		fileContent := filePathToContents[file1]
@@ -377,14 +457,14 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 		log.Println(fileContent2)
 	  }
 	  
-
-
+	//   expectedText := fileContent
+	// expectedText := terraform.Output(t, terraformOptions, "time_stamp")
 	s3url := strings.Replace(fileContent, "https://.s3.amazonaws.com/", "", -1)
 	s3url2 := strings.Replace(fileContent2, "https://.s3.amazonaws.com/", "", -1)
 	fullURL1 :=fmt.Sprintf("%s%s", url, s3url)
 	fullURL2 :=fmt.Sprintf("%s%s", url, s3url2)
 
-
+	
 	// Verify that we get back a 200 OK with the expectedText
 	// It can take a few minutes for the ALB to boot up, so retry a few times
 	// http_helper.HttpGetWithRetry(t, url, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
@@ -392,7 +472,17 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 	http_helper.HttpGetWithRetry(t, fullURL2, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
 }
 
+func BuildLbUrl(file_url string, lb_url string) string {
+    file_url_parsed, e := url.Parse(file_url)
 
+    if e != nil {
+        log.Fatal(e)
+    }
+
+    file_url_parsed.Host = lb_url
+
+    return file_url_parsed.String()
+}
 
 // func fetchFilesFromAsg(t *testing.T, awsRegion string, workingDir string) {
 // 	// Load the Terraform Options and Key Pair saved by the earlier deploy_terraform stage

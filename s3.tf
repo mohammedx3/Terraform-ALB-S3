@@ -105,7 +105,6 @@ output "bucket_name" {
   value = aws_s3_bucket.terratest-bucket
 }
 
-
 output "time_stamp" {
-  value = local.timestamp
+value = "${local.timestamp}"
 }

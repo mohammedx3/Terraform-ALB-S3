@@ -7,6 +7,9 @@ sudo chmod 777 traefik_linux-amd64
 mkdir configs
 
 apt install awscli -y
+echo "${s3_name}" > s3name.txt
+aws s3 presign s3://${s3_name}/test1.txt > /home/ubuntu/file1_access.txt
+aws s3 presign s3://${s3_name}/test1.txt > /home/ubuntu/file2_access.txt
 
 echo -e '[frontends] \n [frontends.frontend1] \n backend = "backend1" \n  [frontends.frontend1.routes.playgrond] \n  rule = "PathPrefix:/" \n \n[backends] \n  [backends.backend1] \n   [backends.backend1.servers.server1] \n   url = "http://${s3_name}.s3-eu-west-1.amazonaws.com"' > configs/reverse.toml
 echo -e 'logLevel = "DEBUG" \ndebug=true \ndefaultEntryPoints = ["http"] \n \n[file] \n directory = "/home/ubuntu/configs" \n watch = true \n[entryPoints] \n [entryPoints.http] \n   address = ":80" \n[traefikLog] \n  filePath = "./traefik.log"' > traefik.toml 

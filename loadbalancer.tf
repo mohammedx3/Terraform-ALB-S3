@@ -56,8 +56,8 @@ resource "aws_launch_configuration" "web_servers" {
   security_groups = [aws_security_group.web_server.id]
   user_data       = data.template_file.user_data.rendered
   iam_instance_profile = aws_iam_instance_profile.terraform_profile.name
-#   key_name        = var.key_pair_name
-  key_name = "testtask"
+  key_name        = var.key_pair_name
+#   key_name = "testtask"
 
   # When used with an aws_autoscaling_group resource, the aws_launch_configuration must set create_before_destroy to
   # true. Note: as soon as you set create_before_destroy = true in one resource, you must also set it in every resource
@@ -79,7 +79,7 @@ data "template_file" "user_data" {
   vars = {
     # instance_text = var.instance_text
     instance_port = var.instance_port
-    s3_name = aws_s3_bucket.terratest-bucket.bucket
+    s3_name = "${aws_s3_bucket.terratest-bucket.bucket}"
   }
 }
 
@@ -337,11 +337,11 @@ variable "ssh_port" {
   default     = 22
 }
 
-# variable "instance_text" {
-#   description = "The text each EC2 Instance should return when it gets an HTTP request."
-#   type        = string
-#   default     = "Hello, World!"
-# }
+variable "instance_text" {
+  description = "The text each EC2 Instance should return when it gets an HTTP request."
+  type        = string
+  default     = "Hello, World!"
+}
 
 variable "alb_port" {
   description = "The port the ALB should listen on for HTTP requests"
@@ -352,7 +352,7 @@ variable "alb_port" {
 variable "key_pair_name" {
   description = "The EC2 Key Pair to associate with the EC2 Instance for SSH access."
   type        = string
-  default     = ""
+  default     = "testtask"
 }
 
 variable "instance_type" {

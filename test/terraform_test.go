@@ -1,93 +1,97 @@
-// package test
+package test
 
-// import (
-// 	"github.com/stretchr/testify/require"
-// 	"fmt"
-// 	"strings"
-// 	"testing"
+import (
+	"github.com/stretchr/testify/require"
+	"fmt"
+	"strings"
+	"testing"
+	"encoding/json"
+	"log"
+	"os"
+	"github.com/gruntwork-io/terratest/modules/aws"
+	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
+	"crypto/tls"
+	"time"
 
-// 	"encoding/json"
-// 	"log"
-// 	"os"
+	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 
-// 	"github.com/gruntwork-io/terratest/modules/aws"
-// 	"github.com/gruntwork-io/terratest/modules/random"
-// 	"github.com/gruntwork-io/terratest/modules/terraform"
-// 	"github.com/stretchr/testify/assert"
 
-// )
+)
 
-// type Configuration struct {
-// 	TERRAFORM_DIR string
-// 	REGION     string
-// }
+type Configuration struct {
+	TERRAFORM_DIR string
+	REGION     string
+}
 
-// func LoadConfigFile() Configuration {
-// 	file, err := os.Open("./config.json")
+func LoadConfigFile() Configuration {
+	file, err := os.Open("./config.json")
 
-// 	if err != nil {
-// 		log.Fatal("Can't open config file: ", err)
-// 	}
+	if err != nil {
+		log.Fatal("Can't open config file: ", err)
+	}
 
-// 	defer file.Close()
+	defer file.Close()
 
-// 	decoder := json.NewDecoder(file)
-// 	Config := Configuration{}
-// 	err = decoder.Decode(&Config)
+	decoder := json.NewDecoder(file)
+	Config := Configuration{}
+	err = decoder.Decode(&Config)
 
-// 	if err != nil {
-// 		log.Fatal("can't decode config JSON: ", err)
-// 	}
+	if err != nil {
+		log.Fatal("can't decode config JSON: ", err)
+	}
 
-// 	log.	(Config.TERRAFORM_DIR)
-// 	log.Println(Config.REGION)
-// 	return Config
-// }
+	// log.(Config.TERRAFORM_DIR)
+	// log.Println(Config.REGION)
+	return Config
+}
 
-// // Standard Go test, with the "Test" prefix and accepting the *testing.T struct.
-// func TestS3Bucket(t *testing.T) {
-// 	// Load configuration file
-// 	config := LoadConfigFile()
+// Standard Go test, with the "Test" prefix and accepting the *testing.T struct.
+func TestS3Bucket(t *testing.T) {
+	// Load configuration file
+	config := LoadConfigFile()
 
-// 	// This is using the terraform package that has a sensible retry function.
-// 	terraformOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-// 		// Our Terraform code is in the /terraformTask folder.
-// 		TerraformDir: config.TERRAFORM_DIR,
+	// This is using the terraform package that has a sensible retry function.
+	terraformOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		// Our Terraform code is in the /terraformTask folder.
+		TerraformDir: config.TERRAFORM_DIR,
 
-// 		// This allows us to define Terraform variables. We have a variable named "bucket_name" to use it in our testing.
-// 		Vars: map[string]interface{}{
-// 			"bucket_name": fmt.Sprintf("%v", strings.ToLower(random.UniqueId())),
-// 		},
+		// This allows us to define Terraform variables. We have a variable named "bucket_name" to use it in our testing.
+		Vars: map[string]interface{}{
+			"bucket_name": fmt.Sprintf("%v", strings.ToLower(random.UniqueId())),
+		},
 
-// 		// Setting the environment variables, specifically the AWS region.
-// 		EnvVars: map[string]string{
-// 			"AWS_DEFAULT_REGION": config.REGION,
-// 		},
-// 	})
+		// Setting the environment variables, specifically the AWS region.
+		EnvVars: map[string]string{
+			"AWS_DEFAULT_REGION": config.REGION,
+		},
+	})
 
-// 	// To destroy the infrastructure after testing.
-// 	defer terraform.Destroy(t, terraformOpts)
+	// To destroy the infrastructure after testing.
+	defer terraform.Destroy(t, terraformOpts)
 
-// 	// Deploy the infrastructure with the options defined above
-// 	terraform.InitAndApply(t, terraformOpts)
+	// Deploy the infrastructure with the options defined above
+	terraform.InitAndApply(t, terraformOpts)
 
-// 	// Get the bucket ID so we can query AWS
-// 	bucketID := terraform.Output(t, terraformOpts, "bucket_id")
+	// Get the bucket ID so we can query AWS
+	bucketID := terraform.Output(t, terraformOpts, "bucket_id")
 
-// 	// Test that the bucket exists.
-// 	actualBucketStatus := aws.AssertS3BucketExistsE(t, config.REGION, bucketID)
-// 	assert.Equal(t, nil, actualBucketStatus)
+	// Test that the bucket exists.
+	actualBucketStatus := aws.AssertS3BucketExistsE(t, config.REGION, bucketID)
+	assert.Equal(t, nil, actualBucketStatus)
 
-// 	// Test there is 2 files with names "file1.txt" and "file2.txt"
-// 	actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "test1.txt")
-// 	actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "testt2.txt")
+	// Test there is 2 files with names "file1.txt" and "file2.txt"
+	actualBucketObject1Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "test1.txt")
+	actualBucketObject2Content, _ := aws.GetS3ObjectContentsE(t, config.REGION, bucketID, "testt2.txt")
 
-// 	// Assert files were uploaded by checking returned content is not null and of type strings
-// 	assert.NotEqual(t, nil, actualBucketObject1Content)
-// 	assert.IsType(t, "", actualBucketObject1Content)
-// 	assert.NotEqual(t, nil, actualBucketObject2Content)
-// 	assert.IsType(t, "", actualBucketObject2Content)
-// }
+	// Assert files were uploaded by checking returned content is not null and of type strings
+	assert.NotEqual(t, nil, actualBucketObject1Content)
+	assert.IsType(t, "", actualBucketObject1Content)
+	assert.NotEqual(t, nil, actualBucketObject2Content)
+	assert.IsType(t, "", actualBucketObject2Content)
+}
 
 // func TestTerraformAwsNetwork(t *testing.T) {
 // 	t.Parallel()
@@ -210,26 +214,24 @@
 // }
 
 
-package test
+// import (
+// 	"crypto/tls"
+// 	"fmt"
+// 	"strings"
+// 	"testing"
+// 	"time"
 
-import (
-	"crypto/tls"
-	"fmt"
-	// "strings"
-	"testing"
-	"time"
-
-	"github.com/gruntwork-io/terratest/modules/aws"
-	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
-	// "github.com/gruntwork-io/terratest/modules/logger"
-	"github.com/gruntwork-io/terratest/modules/random"
-	// "github.com/gruntwork-io/terratest/modules/retry"
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	// "log"
-)
+// 	"github.com/gruntwork-io/terratest/modules/aws"
+// 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+// 	// "github.com/gruntwork-io/terratest/modules/logger"
+// 	"github.com/gruntwork-io/terratest/modules/random"
+// 	// "github.com/gruntwork-io/terratest/modules/retry"
+// 	"github.com/gruntwork-io/terratest/modules/terraform"
+// 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+// 	"github.com/stretchr/testify/assert"
+// 	"github.com/stretchr/testify/require"
+// 	"log"
+// )
 
 // An example of how to test the Terraform module in examples/terraform-redeploy-example using Terratest. We deploy the
 // Terraform code, check that the load balancer returns the expected response, redeploy the code, and check that the
@@ -245,8 +247,6 @@ func TestTerraformRedeployExample(t *testing.T) {
 	// The folder where we have our Terraform code
 	workingDir := "../"
 
-
-	
 	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
 	test_structure.RunTestStage(t, "pick_region", func() {
 		awsRegion := "eu-west-1"
@@ -317,9 +317,9 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 		Vars: map[string]interface{}{
 			"aws_region":    awsRegion,
 			"instance_name": name,
-			"instance_text": text,
+			"time_stamp": text,
 			"instance_type": instanceType,
-			"key_pair_name": keyPair.Name,
+			"key_pair_name": keyPair,
 		},
 	})
 
@@ -330,18 +330,34 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 	terraform.InitAndApply(t, terraformOptions)
 }
 
+
+
+
+
+const file1 = "/home/ubuntu/file1_access.txt"
+const file2 = "/home/ubuntu/file2_access.txt"
+// This size is configured in the terraform-redeploy-example itself
+const asgSize = 2
+
+// Default location where the User Data script generates a presign url for the files.
+
+
+const fileContent = ""
+const fileContent2 = ""
+
 // Validate the ASG has been deployed and is working
 func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir string) {
 	// Load the Terraform Options saved by the earlier deploy_terraform stage
 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-
+	keyPair := test_structure.LoadEc2KeyPair(t, workingDir)
 	// Run `terraform output` to get the value of an output variable
 	url := terraform.Output(t, terraformOptions, "url")
 	asgName := terraform.OutputRequired(t, terraformOptions, "asg_name")
-
+	instanceIdToFilePathToContents := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file1, file2)
+	
 	// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
 	tlsConfig := tls.Config{}
-
+	require.Len(t, instanceIdToFilePathToContents, asgSize)
 	// Wait and verify the ASG is scaled to the desired capacity. It can take a few minutes for the ASG to boot up, so
 	// retry a few times.
 	maxRetries := 30
@@ -352,50 +368,59 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 	assert.Equal(t, capacityInfo.CurrentCapacity, int64(2))
 
 	// Figure out what text the ASG should return for each request
-	expectedText, _ := terraformOptions.Vars["instance_text"].(string)
-
-	// Verify that we get back a 200 OK with the expectedText
-	// It can take a few minutes for the ALB to boot up, so retry a few times
-	http_helper.HttpGetWithRetry(t, url, &tlsConfig, 403, expectedText, maxRetries, timeBetweenRetries)
-}
-
-// This size is configured in the terraform-redeploy-example itself
-const asgSize = 2
-
-// Default location where the User Data script generates a presign url for the files.
-const file1 = "/home/ubuntu/file1_access.txt"
-const file2 = "/home/ubuntu/file2_access.txt"
-
-const fileContent = ""
-const fileContent2 = ""
-
-func fetchFilesFromAsg(t *testing.T, awsRegion string, workingDir string) {
-	// Load the Terraform Options and Key Pair saved by the earlier deploy_terraform stage
-	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-	keyPair := test_structure.LoadEc2KeyPair(t, workingDir)
-
-	asgName := terraform.OutputRequired(t, terraformOptions, "asg_name")
-	instanceIdToFilePathToContents := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file1, file2)
-	// instanceIdToFilePathToContents2 := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file2)
-	
-	require.Len(t, instanceIdToFilePathToContents, asgSize)
-	// require.Len(t, instanceIdToFilePathToContents2, asgSize)
+	expectedText, _ := terraformOptions.Vars["time_stamp"].(string)
 
 	for _, filePathToContents := range instanceIdToFilePathToContents {
 		fileContent := filePathToContents[file1]
 		fileContent2 := filePathToContents[file2]
+		log.Println(fileContent)
+		log.Println(fileContent2)
 	  }
 	  
-	//   log.Println(fileContent)
-	//   log.Println(fileContent2)
 
 
-	// Check that the index.html file on each Instance contains the expected text
-	// expectedText := terraformOptions.Vars["instance_text"]
-	// for instanceID, filePathToContents := range instanceIdToFilePathToContents {
-	// 	require.Contains(t, filePathToContents, indexHtmlUbuntu)
-	// 	assert.Equal(t, expectedText, strings.TrimSpace(filePathToContents[indexHtmlUbuntu]), "Expected %s on instance %s to contain %s", indexHtmlUbuntu, instanceID, expectedText)
-	// }
+	s3url := strings.Replace(fileContent, "https://.s3.amazonaws.com/", "", -1)
+	s3url2 := strings.Replace(fileContent2, "https://.s3.amazonaws.com/", "", -1)
+	fullURL1 :=fmt.Sprintf("%s%s", url, s3url)
+	fullURL2 :=fmt.Sprintf("%s%s", url, s3url2)
+
+
+	// Verify that we get back a 200 OK with the expectedText
+	// It can take a few minutes for the ALB to boot up, so retry a few times
+	// http_helper.HttpGetWithRetry(t, url, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
+	http_helper.HttpGetWithRetry(t, fullURL1, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
+	http_helper.HttpGetWithRetry(t, fullURL2, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
+}
+
+
+
+// func fetchFilesFromAsg(t *testing.T, awsRegion string, workingDir string) {
+// 	// Load the Terraform Options and Key Pair saved by the earlier deploy_terraform stage
+// 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+// 	keyPair := test_structure.LoadEc2KeyPair(t, workingDir)
+
+// 	asgName := terraform.OutputRequired(t, terraformOptions, "asg_name")
+// 	instanceIdToFilePathToContents := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file1, file2)
+// 	instanceIdToFilePathToContents2 := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file2)
+	
+// 	require.Len(t, instanceIdToFilePathToContents, asgSize)
+// 	require.Len(t, instanceIdToFilePathToContents2, asgSize)
+
+// 	for _, filePathToContents := range instanceIdToFilePathToContents {
+// 		fileContent := filePathToContents[file1]
+// 		fileContent2 := filePathToContents[file2]
+// 	  }
+	  
+// 	  log.Println(fileContent)
+// 	  log.Println(fileContent2)
+
+
+// 	// Check that the index.html file on each Instance contains the expected text
+// 	expectedText := terraformOptions.Vars["instance_text"]
+// 	for instanceID, filePathToContents := range instanceIdToFilePathToContents {
+// 		require.Contains(t, filePathToContents, indexHtmlUbuntu)
+// 		assert.Equal(t, expectedText, strings.TrimSpace(filePathToContents[indexHtmlUbuntu]), "Expected %s on instance %s to contain %s", indexHtmlUbuntu, instanceID, expectedText)
+// 	}
 
 	
-}
+// }

@@ -253,10 +253,10 @@ func TestTerraformRedeployExample(t *testing.T) {
 	})
 
 	// At the end of the test, clean up all the resources we created
-	defer test_structure.RunTestStage(t, "teardown", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
-		terraform.Destroy(t, terraformOptions)
-	})
+	// defer test_structure.RunTestStage(t, "teardown", func() {
+	// 	terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+	// 	terraform.Destroy(t, terraformOptions)
+	// })
 
 	// // At the end of the test, fetch the logs from each Instance. This can be useful for
 	// // debugging issues without having to manually SSH to the server.
@@ -332,6 +332,9 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 		},
 	})
 
+		// Save the Terraform Options struct so future test stages can use it
+		test_structure.SaveTerraformOptions(t, workingDir, terraformOptions)
+
 		// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 		terraform.InitAndApply(t, terraformOptions)
 /////////////////////////////////////////////////////////////////////////////////
@@ -369,7 +372,7 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 /////////////////////////////////////////////////////////////////////////////////1
 
 //////////////////////////////////////////////////////////////////////////////////////////
-t.Parallel()
+// t.Parallel()
 	
 	// Load configuration file
 	// config := LoadConfigFile()
@@ -399,7 +402,7 @@ t.Parallel()
 //////////////////////////////////////////////////////////////////////////////////////2
 
 	// Save the Terraform Options struct so future test stages can use it
-	test_structure.SaveTerraformOptions(t, workingDir, terraformOptions)
+	// test_structure.SaveTerraformOptions(t, workingDir, terraformOptions)
 
 	// // This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	// terraform.InitAndApply(t, terraformOptions)
@@ -427,12 +430,12 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 	keyPair := test_structure.LoadEc2KeyPair(t, workingDir)
 	// Run `terraform output` to get the value of an output variable
 	url := terraform.Output(t, terraformOptions, "url")
-	expectedText := terraform.Output(t, terraformOptions, "time_stamp")
+
 	log.Println(url)
-	log.Println(expectedText)
-	
+
 
 	asgName := terraform.OutputRequired(t, terraformOptions, "asg_name")
+
 	instanceIdToFilePathToContents := aws.FetchContentsOfFilesFromAsg(t, awsRegion, "ubuntu", keyPair, asgName, true, file1, file2)
 	
 	// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
@@ -449,27 +452,39 @@ func validateAsgRunningWebServer(t *testing.T, awsRegion string, workingDir stri
 
 	// Figure out what text the ASG should return for each request
 	
-
+	expectedText := terraform.Output(t, terraformOptions, "time_stamp")
+	log.Println(expectedText)
+	
 	for _, filePathToContents := range instanceIdToFilePathToContents {
 		fileContent := filePathToContents[file1]
+		log.Println("MRGEEK::: fileContent: ", fileContent)
+
 		fileContent2 := filePathToContents[file2]
-		log.Println(fileContent)
-		log.Println(fileContent2)
+		log.Println("MRGEEK::: fileContent2: ", fileContent2)
+
+		fullURL1 := BuildLbUrl(fileContent, url)
+		log.Println("MRGEEK::: fullURL1: ", fullURL1)
+
+		fullURL2 := BuildLbUrl(fileContent2, url)
+		log.Println("MRGEEK::: fullURL2: ", fullURL2)
+
+		http_helper.HttpGetWithRetry(t, fullURL1, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
+		http_helper.HttpGetWithRetry(t, fullURL2, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
 	  }
 	  
 	//   expectedText := fileContent
 	// expectedText := terraform.Output(t, terraformOptions, "time_stamp")
-	s3url := strings.Replace(fileContent, "https://.s3.amazonaws.com/", "", -1)
-	s3url2 := strings.Replace(fileContent2, "https://.s3.amazonaws.com/", "", -1)
-	fullURL1 :=fmt.Sprintf("%s%s", url, s3url)
-	fullURL2 :=fmt.Sprintf("%s%s", url, s3url2)
+	// s3url := strings.Replace(fileContent, "https://.s3.amazonaws.com/", "", -1)
+	// s3url2 := strings.Replace(fileContent2, "https://.s3.amazonaws.com/", "", -1)
+	// fullURL1 :=fmt.Sprintf("%s%s", url, s3url)
+	// fullURL2 :=fmt.Sprintf("%s%s", url, s3url2)
 
 	
 	// Verify that we get back a 200 OK with the expectedText
 	// It can take a few minutes for the ALB to boot up, so retry a few times
 	// http_helper.HttpGetWithRetry(t, url, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
-	http_helper.HttpGetWithRetry(t, fullURL1, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
-	http_helper.HttpGetWithRetry(t, fullURL2, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
+	// http_helper.HttpGetWithRetry(t, fullURL1, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
+	// http_helper.HttpGetWithRetry(t, fullURL2, &tlsConfig, 200, expectedText, maxRetries, timeBetweenRetries)
 }
 
 func BuildLbUrl(file_url string, lb_url string) string {

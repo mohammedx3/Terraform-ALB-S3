@@ -18,40 +18,44 @@ variable "second_subnet_cidr" {
   default = "10.0.1.0/24"
 }
 
-
 // ---------------------------------- S3 VARIABLES ----------------------------------
 
 variable "bucket_name" {
   description = "The name of the bucket"
-  default     = "task"
+  default     = "terra-task"
 }
 
 variable "bucketpolicy_name" {
-  description = "The name of the bucket"
+  description = "The bucket policy name"
   default     = "task"
 }
 
 // ---------------------------------- IAM ROLE VARIABLES ----------------------------------
 
 variable "profile_name" {
+  description = "The profile name of the IAM role"
+  default     = "task"
+}
+
+variable "iam_name" {
   description = "The name of the IAM role"
   default     = "task"
 }
 
-variable "iamrole_name" {
-  description = "The name of the IAM role"
-  default     = "task"
-}
-
-variable "iamrole_policy_name" {
+variable "iam_policy_name" {
   description = "The name of the IAM role policy"
+  default     = "task"
+}
+
+variable "iam_policy_attach" {
+  description = "The name of policy attach"
   default     = "task"
 }
 
 // ---------------------------------- INSTANCE VARIABLES ----------------------------------
 
 variable "aws_region" {
-  description = "The AWS region to deploy into (e.g. us-east-1)."
+  description = "The AWS region to deploy into"
   type        = string
   default     = "eu-west-1"
 }

@@ -1,6 +1,6 @@
 // Create private s3 bucket
 resource "aws_s3_bucket" "terratest-bucket" {
-    bucket = "terra-${var.bucket_name}"
+    bucket = "${var.bucket_name}"
     acl    = "private"
     tags = {
     Name        = "My bucket"
@@ -25,7 +25,7 @@ locals {
 
 // Import test1 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object1" {
-    bucket = "terra-${var.bucket_name}"
+    bucket = "${var.bucket_name}"
     key    = "test1.txt"
     acl = "private"
     source = "./createdFiles/test1.txt"
@@ -36,7 +36,7 @@ resource "aws_s3_bucket_object" "object1" {
 
 // Import test2 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object2" {
-    bucket = "terra-${var.bucket_name}"
+    bucket = "${var.bucket_name}"
     key    = "test2.txt"
     acl = "private"
     source = "./createdFiles/test2.txt"
@@ -54,7 +54,7 @@ resource "time_sleep" "wait_30_seconds" {
 
 // Policy to allow access to IAM role and the user running Terraform and waits 30 seconds before creating to allow time for the objects to get uploaded to the bucket first.
 resource "aws_s3_bucket_policy" "s3BucketPolicy" {
-  bucket = "terra-${var.bucket_name}"
+  bucket = "${var.bucket_name}"
 
   depends_on = [time_sleep.wait_30_seconds,aws_s3_bucket.terratest-bucket]
   # Terraform's "jsonencode" function converts a

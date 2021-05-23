@@ -1,10 +1,10 @@
-// Get list of all available AZs.
+// Get list of all available AZs in the region.
 data "aws_availability_zones" "available" {
   state = "available"
 }
  
 
-# // VPC to be used
+// VPC to be used
 resource "aws_vpc" "public" {
   cidr_block           = var.main_vpc_cidr
   enable_dns_hostnames = true

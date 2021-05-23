@@ -1,8 +1,9 @@
+// default AWS region.
 provider "aws" {
   region = var.aws_region
 }
 
-// Creating autoscalling group that has 2 instances with max size, the same launch configuration and healthcheck in both subnets in both availability zones.
+// Creating autoscalling group that has 2 instances with max size of 2, the same launch configuration and healthcheck in both subnets in both availability zones.
 resource "aws_autoscaling_group" "web_servers" {
 
   name = aws_launch_configuration.web_servers.name
@@ -29,7 +30,7 @@ resource "aws_autoscaling_group" "web_servers" {
     create_before_destroy = true
   }
 
-// Check for atleast one listener to be able to do the health checks.
+// Wait for atleast one listener to be able to do the health checks.
   depends_on = [aws_alb_listener.http]
 }
 
@@ -46,10 +47,8 @@ resource "aws_launch_configuration" "web_servers" {
   }
 }
 
-
-
 // Template to run bash script during boot, the script will install the updated packages, awscli, Traefik, create presign URLs for the files in the bucket.
-// And create the Traefik config files that will be used by Traefik to do the reverse proxy.
+//  Create the Traefik config files that will be used by Traefik to do the reverse proxy, and start Traefik.
 data "template_file" "user_data" {
   template = file("${path.module}/user-data/user-data.sh")
 
@@ -82,7 +81,7 @@ resource "aws_security_group_rule" "web_server_allow_http_inbound" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-// Another rule to allow ssh connections so we can debug anything if something goes wrong.
+// Another rule to allow ssh connections so we can debug if something goes wrong.
 resource "aws_security_group_rule" "web_server_allow_ssh_inbound" {
   type              = "ingress"
   from_port         = var.ssh_port
@@ -127,11 +126,6 @@ resource "aws_alb_listener" "http" {
     create_before_destroy = true
   }
 }
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE AN ALB TARGET GROUP FOR THE ASG
-# This target group will perform health checks on the web servers in the ASG
-# ---------------------------------------------------------------------------------------------------------------------
 
 // ALB target group that will perform health checks on the EC2 instaces.
 resource "aws_alb_target_group" "web_servers" {

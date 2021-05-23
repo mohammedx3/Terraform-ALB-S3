@@ -81,8 +81,8 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 	// with anything else in the AWS account.
 	name := fmt.Sprintf("terra-test-%s", uniqueID)
 
-	// For testing purpose, I have set the instance type to t2.xlarge to be able to execute the bash commands
-	// Quickly and installed the packages and return the file URL.
+	// For testing purpose, I have set the instance type to t2.xlarge to be able to execute the bash commands Quickly
+	// Install the packages and return the file URL.
 	instanceType := aws.GetRecommendedInstanceType(t, awsRegion, []string{"t2.xlarge"})
 
 	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
@@ -142,14 +142,14 @@ func initialDeploy(t *testing.T, awsRegion string, workingDir string) {
 	subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 	require.Equal(t, 2, len(subnets))
 
-	// Verify if the network is really public.
+	// Verify that the network is really public.
 	assert.True(t, aws.IsPublicSubnet(t, publicSubnetId1, awsRegion))
 	assert.True(t, aws.IsPublicSubnet(t, publicSubnetId2, awsRegion))
 
 }
 
 // Path to where our files exist in the machines.
-// The files has the presigned URL of the s3 bucket inside of the,
+// The files has the presigned URL of the s3 bucket inside the files.
 const file1 = "/home/ubuntu/file1_access.txt"
 const file2 = "/home/ubuntu/file2_access.txt"
 
@@ -160,7 +160,7 @@ const asgSize = 2
 func retryToGetFiles(t *testing.T, awsRegion string, keyPair *aws.Ec2Keypair, asgName string, file1 string, file2 string) (map[string]map[string]string, error) {
 	fileContentsMaxTries := 30
 	fileContentSleepTime := 60 * time.Second
-	// We created a for loop to keep checking on the contents of the file till 30 minutes pass or it actually works.
+	// We created a for loop to keep checking on the contents of the file till it works or 30 minutes have passed.
 	for i := 0; i < fileContentsMaxTries; i++ {
 		logger.Logf(t, "[%d] Trying to get files contents, it might take a while", i)
 		// instanceIdToFilePathToContents will return 2 values, we only need the file content to pass it to the http checker.

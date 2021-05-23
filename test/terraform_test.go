@@ -38,6 +38,12 @@ func TestTerraformRedeployExample(t *testing.T) {
 	// The folder where we have our Terraform code
 	workingDir := "../"
 
+	// At the end of the test, clean up all the resources we created
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, workingDir)
+		terraform.Destroy(t, terraformOptions)
+	})
+
 	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
 	test_structure.RunTestStage(t, "pick_region", func() {
 		awsRegion := "eu-west-1"

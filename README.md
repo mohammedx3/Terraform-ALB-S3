@@ -1,14 +1,14 @@
 # Terraform ALB to serve private S3 files.
 
-Terraform configuratiion to create full infrastructure (Network, S3, IAM role, policies, autoscalling group and ALB)
-Two subnets in the VPC and both are public.
-The ALB forwards requests to autoscalling group which host Traefik.
-Traefik is working as reverse proxy to redirect all incoming traffic on port 80 to S3 bucket URL.
-No one has power over the S3 bucket but the instances.
-Once the instances boot up, they will run bash script to install awscli.
-Instances will also generate a presigned URL for the files and echo the output into 2 files (it will be later used to access the files).
-The load balancer URL itself will not be able to access the files, you must have S3 creds to be able to access them.
-Terratest to check the above actions are executed correctly, and the files are accessible/correct from the load balancer url + the S3 creds.
+* Terraform configuratiion to create full infrastructure (Network, S3, IAM role, policies, autoscalling group and ALB)
+* Two subnets in the VPC and both are public.
+* The ALB forwards requests to autoscalling group which host Traefik.
+* Traefik is working as reverse proxy to redirect all incoming traffic on port 80 to S3 bucket URL.
+* No one has power over the S3 bucket but the instances.
+* Once the instances boot up, they will run bash script to install awscli.
+* Instances will also generate a presigned URL for the files and echo the output into 2 files (it will be later used to access the files).
+* The load balancer URL itself will not be able to access the files, you must have S3 creds to be able to access them.
+* Terratest to check the above actions are executed correctly, and the files are accessible/correct from the load balancer url + the S3 creds.
 
 For the sake of testing, I have set the default instances type to t2.xlarge so testing becomes much faster.
 

@@ -1,14 +1,3 @@
-// Specify variable with s3 bucket name
-variable "bucket_name" {
-  description = "The name of the bucket"
-  default     = "task"
-}
-
-variable "bucketpolicy_name" {
-  description = "The name of the bucket"
-  default     = "task"
-}
-
 // Create private s3 bucket
 resource "aws_s3_bucket" "terratest-bucket" {
     bucket = "terra-${var.bucket_name}"
@@ -93,18 +82,4 @@ resource "aws_s3_bucket_policy" "s3BucketPolicy" {
     }
     ]
   })
-}
-
-
-// Export bucket id to be later used in terratest.
-output "bucket_id" {
-  value = aws_s3_bucket.terratest-bucket.id
-}
-
-output "bucket_name" {
-  value = aws_s3_bucket.terratest-bucket
-}
-
-output "time_stamp" {
-value = "${local.timestamp}"
 }

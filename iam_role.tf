@@ -1,19 +1,4 @@
 
-variable "profile_name" {
-  description = "The name of the IAM role"
-  default     = "task"
-}
-
-variable "iamrole_name" {
-  description = "The name of the IAM role"
-  default     = "task"
-}
-
-variable "iamrole_policy_name" {
-  description = "The name of the IAM role policy"
-  default     = "task"
-}
-
 
 resource "aws_iam_instance_profile" "terraform_profile" {
   name = "terraform_profile-${var.profile_name}"

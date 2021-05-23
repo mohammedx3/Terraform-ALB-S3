@@ -1,30 +1,3 @@
-# variable "aws_region" {
-#   description = "AWS region"
-#   type        = string
-#   default = "eu-west-1"
-# }
-
-variable "main_vpc_cidr" {
-  description = "The CIDR of the main VPC"
-  type        = string
-  default = "10.0.0.0/16"
-}
-
-variable "first_subnet_cidr" {
-  description = "The CIDR of first public subnet"
-  type        = string
-  default = "10.0.0.0/24"
-}
-
-variable "second_subnet_cidr" {
-  description = "The CIDR of second public subnet"
-  type        = string
-  default = "10.0.1.0/24"
-}
-
-
-
-
 // Get list of all available AZs.
 data "aws_availability_zones" "available" {
   state = "available"
@@ -83,32 +56,13 @@ resource "aws_route_table" "route" {
   }
 }
 
+// Add the subnets to the route table so it can be accessed publicly.
 resource "aws_route_table_association" "routeassoci" {
-
   subnet_id      = aws_subnet.subnet_az1.id
   route_table_id = aws_route_table.route.id
 }
 
 resource "aws_route_table_association" "routeassoci2" {
-
   subnet_id      = aws_subnet.subnet_az2.id
   route_table_id = aws_route_table.route.id
 }
-
-
-
-output "main_vpc_id" {
-  value       = aws_vpc.public.id
-  description = "The public VPC id"
-}
-
-output "public1_subnet_id" {
-  value       = aws_subnet.subnet_az1.id
-  description = "The first public subnet id"
-}
-
-output "public2_subnet_id" {
-  value       = aws_subnet.subnet_az2.id
-  description = "The second public subnet id"
-}
-

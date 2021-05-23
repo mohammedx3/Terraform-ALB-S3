@@ -6,7 +6,7 @@ provider "aws" {
 # CREATE THE ASG
 # ---------------------------------------------------------------------------------------------------------------------
 
-resource "  " "web_servers" {
+resource "aws_autoscaling_group" "web_servers" {
   # Note that we intentionally depend on the Launch Configuration name so that creating a new Launch Configuration
   # (e.g. to deploy a new AMI) creates a new Auto Scaling Group. This will allow for rolling deployments.
   name = aws_launch_configuration.web_servers.name

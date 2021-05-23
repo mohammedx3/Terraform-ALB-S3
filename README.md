@@ -12,6 +12,10 @@
 
 For the sake of testing, I have set the default instances type to t2.xlarge so testing becomes much faster.
 
+*** IMPORTANT NOTE ***
+You have to add the user id which you are running the terraform with to the S3 Bucket policy so you can destroy it later or use the root user.
+*** IMPORTANT NOTE ***
+
 ### Prerequisites
 * [Terraform](https://www.terraform.io/downloads.html)
 * [Go](https://golang.org/dl/)

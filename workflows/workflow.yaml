@@ -3,7 +3,7 @@ name: Terraform CI
 on: 
   push:
     branches:
-      - task-2
+      - task-2 
 
 jobs:
   test:

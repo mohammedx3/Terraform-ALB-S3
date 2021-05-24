@@ -8,43 +8,29 @@ resource "aws_s3_bucket" "terratest-bucket" {
   }
 }
 
-// Create 2 text files and import timestamp in them
-resource "local_file" "to_dir" {
-  count    = "${length(local.source_files)}"
-  filename = "./createdFiles/${basename(element(local.source_files, count.index))}"
-  content  = "${local.timestamp}"
-}
-
-
 // Set local timestamp to be imported in the 2 files.
 locals {
-  source_files = ["./createdFiles/test1.txt", "./createdFiles/test2.txt"]
   timestamp = "${timestamp()}"
 }
 
 
-// Import test1 into the bucket but wait for the bucket to be created first.
+// Create test1 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object1" {
-    bucket = "${var.bucket_name}"
+    bucket = "${aws_s3_bucket.terratest-bucket.bucket}"
     key    = "test1.txt"
-    acl = "private"
-    source = "./createdFiles/test1.txt"
-    depends_on = [
-    aws_s3_bucket.terratest-bucket
-  ]
+    acl = "private" 
+    content = "${timestamp()}"
+    content_type = "text"
 }
 
-// Import test2 into the bucket but wait for the bucket to be created first.
+// Create test2 into the bucket but wait for the bucket to be created first.
 resource "aws_s3_bucket_object" "object2" {
-    bucket = "${var.bucket_name}"
+    bucket = "${aws_s3_bucket.terratest-bucket.bucket}"
     key    = "test2.txt"
     acl = "private"
-    source = "./createdFiles/test2.txt"
-    depends_on = [ 
-    aws_s3_bucket.terratest-bucket
-    ]
+    content = "${timestamp()}"
+    content_type = "text"
 }
-
 
 resource "time_sleep" "wait_30_seconds" {
   depends_on = [aws_s3_bucket_object.object2,aws_s3_bucket_object.object1]

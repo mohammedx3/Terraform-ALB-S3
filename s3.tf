@@ -19,7 +19,7 @@ resource "aws_s3_bucket_object" "object1" {
     bucket = "${aws_s3_bucket.terratest-bucket.bucket}"
     key    = "test1.txt"
     acl = "private" 
-    content = "${timestamp()}"
+    ontent = "${local.timestamp}"
     content_type = "text"
 }
 
@@ -28,7 +28,7 @@ resource "aws_s3_bucket_object" "object2" {
     bucket = "${aws_s3_bucket.terratest-bucket.bucket}"
     key    = "test2.txt"
     acl = "private"
-    content = "${timestamp()}"
+    ontent = "${local.timestamp}"
     content_type = "text"
 }
 
